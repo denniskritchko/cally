@@ -1,0 +1,21 @@
+{
+  "name": "@cally/extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'no extension tests yet'",
+    "zip": "cd dist && zip -qr ../cally-extension.zip . && cd .. && echo wrote cally-extension.zip"
+  },
+  "dependencies": {
+    "@cally/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.280",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.0"
+  }
+}
