@@ -74,6 +74,26 @@ authRoutes.get('/google/callback', async (c) => {
   return c.redirect('/');
 });
 
+/**
+ * Dev only: sign in as any email without Google. Never mounted in production.
+ * Lets the dashboard + extension flow be exercised before OAuth creds exist.
+ */
+if (!isProd) {
+  authRoutes.post('/dev', async (c) => {
+    const email = String((await c.req.parseBody()).email ?? '').trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+$/.test(email)) return c.redirect('/?error=bad_email');
+    let [user] = await db.select().from(schema.users).where(eq(schema.users.googleSub, `dev:${email}`));
+    if (!user) {
+      [user] = await db
+        .insert(schema.users)
+        .values({ id: randomToken(12), email, googleSub: `dev:${email}`, name: 'Dev user', feedToken: randomToken(24), timezone: env.DEFAULT_TIMEZONE })
+        .returning();
+    }
+    await createSession(c, user!.id);
+    return c.redirect('/');
+  });
+}
+
 authRoutes.post('/logout', async (c) => {
   await destroySession(c);
   return c.json({ ok: true });

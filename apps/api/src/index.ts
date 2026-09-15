@@ -7,7 +7,7 @@ import { secureHeaders } from 'hono/secure-headers';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { env, googleEnabled } from './env.js';
+import { env, googleEnabled, isProd } from './env.js';
 import { sql } from './db/client.js';
 import { authRoutes } from './routes/auth.js';
 import { meRoutes } from './routes/me.js';
@@ -23,7 +23,7 @@ app.use('*', secureHeaders({ crossOriginResourcePolicy: false }));
 // The extension calls /api/extension/* from a chrome-extension:// origin with a bearer token, no cookies.
 app.use('/api/extension/*', cors({ origin: (o) => (o?.startsWith('chrome-extension://') || o?.startsWith('moz-extension://') ? o : null) }));
 
-app.get('/api/health', (c) => c.json({ ok: true, google: googleEnabled, canvas: env.CANVAS_BASE_URL }));
+app.get('/api/health', (c) => c.json({ ok: true, google: googleEnabled, dev: !isProd, canvas: env.CANVAS_BASE_URL }));
 app.route('/api/auth', authRoutes);
 app.route('/api/me', meRoutes);
 app.route('/api/canvas', canvasRoutes);
